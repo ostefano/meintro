@@ -9,18 +9,12 @@ using System.Runtime.InteropServices;
 namespace meintro {
     class Program {
 
+        private const int ADDRINT_SIZE = 4;
         private const int MAX_CHAR_COUNT = 128;
         private const int MAX_THREAD_COUNT = 64;
         private const int MAX_DLL_COUNT = 256;
-        //private const int MAX_THREAD_COUNT = 256;
 
-        /*
-        private const int SHM_INT64_SIZE = 8;
-        private const int SHM_INT32_SIZE = 4;
-        private const int SHM_INT16_SIZE = 2;
-        private const int SHM_CHAR_SIZE = 1;
-        */
-        
+        private const int SHM_ADDRINT_SIZE = ADDRINT_SIZE;
         private const int SHM_INT64_SIZE = sizeof(UInt64);// 8;
         private const int SHM_INT32_SIZE = sizeof(UInt32);// 4;
         private const int SHM_INT16_SIZE = sizeof(UInt16);// 2;
@@ -35,7 +29,12 @@ namespace meintro {
                                                 (SHM_INT32_SIZE * MAX_DLL_COUNT) + 
                                                 (SHM_DLL_ENV_SIZE * MAX_DLL_COUNT);
 
-
+        private const int SHM_PROCESS_ENV_SIZE = (SHM_CHAR_SIZE * MAX_CHAR_COUNT) +
+                                                 (SHM_INT32_SIZE * 1) + (4) +
+                                                 (SHM_INT64_SIZE * 1) +
+                                                 (SHM_INT16_SIZE * 1) + (6) +
+                                                 (SHM_INT32_SIZE * MAX_THREAD_COUNT) +
+                                                 (SHM_THREAD_ENV_SIZE * MAX_THREAD_COUNT);
 
         [StructLayout(LayoutKind.Explicit, CharSet = CharSet.Ansi)]
         struct SHM_THREAD_ENV {
@@ -249,57 +248,6 @@ namespace meintro {
             public Byte[] thread_envs;
         }
 
-   
-
-        /*
-        [StructLayout(LayoutKind.Explicit)]
-        struct SHM_PROCESS_ENV
-        {
-            [FieldOffset(0)]
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
-            public string FileDate;
-
-            [FieldOffset(8)]
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
-            public string FileTime;
-
-            [FieldOffset(16)]
-            public int Id1;
-
-            [FieldOffset(20)]
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 66)] //Or however long Id2 is.
-            public string Id2;
-        }
-
-        [StructLayout(LayoutKind.Explicit)]
-        struct SHM_PROCESS_ENV
-        {
-            [FieldOffset(0)]
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
-            public string FileDate;
-
-            [FieldOffset(8)]
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 8)]
-            public string FileTime;
-
-            [FieldOffset(16)]
-            public int Id1;
-
-            [FieldOffset(20)]
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 66)] //Or however long Id2 is.
-            public string Id2;
-        }
-
-        */
-
-        private int SHM_PROCESS_SIZE = 2956696;
-        private int SHM_THREAD_SIZE = 46192;
-        private int SHM_DLL = 176;
-
-        private int PROCESS_COUNT = 5;
-        private int THREAD_COUNT = 64;
-        private int DLL_COUNT = 256;
-
         static void Main(string[] args) {
 
             try
@@ -310,15 +258,9 @@ namespace meintro {
 
                     FileStream fileStream = new FileStream(@"c:\Users\Stefano\mepropin\date_140902_1544_s001.log", FileMode.Open);
 
-
-                    Console.WriteLine("Test " + sizeof(UInt64) + " - " + sizeof(UInt32) + " - " + sizeof(UInt16) + " - " + sizeof(Byte));
-
-                         
-
-                    Console.WriteLine("Test 4 " + UnmanagedType.U4 + " Test 8 " + UnmanagedType.U8);
-                    Console.WriteLine("PROCESS_ENV_REV: " + Marshal.SizeOf(typeof(SHM_PROCESS_ENV_REV)) + " PROCESS_ENV: " + Marshal.SizeOf(typeof(SHM_PROCESS_ENV)));
-                    Console.WriteLine("THREAD_ENV_REV: " + Marshal.SizeOf(typeof(SHM_THREAD_ENV_REV)) + " ENV: " + Marshal.SizeOf(typeof(SHM_THREAD_ENV)));
-                    Console.WriteLine("DLL_ENV_REV: " + Marshal.SizeOf(typeof(SHM_DLL_ENV_REV)) + " ENV: " + Marshal.SizeOf(typeof(SHM_DLL_ENV)));
+                    Console.WriteLine("["+SHM_PROCESS_ENV_SIZE+"] PROCESS_ENV_REV: " + Marshal.SizeOf(typeof(SHM_PROCESS_ENV_REV)) + " PROCESS_ENV: " + Marshal.SizeOf(typeof(SHM_PROCESS_ENV)));
+                    Console.WriteLine("["+SHM_THREAD_ENV_SIZE+"] THREAD_ENV_REV: " + Marshal.SizeOf(typeof(SHM_THREAD_ENV_REV)) + " ENV: " + Marshal.SizeOf(typeof(SHM_THREAD_ENV)));
+                    Console.WriteLine("["+SHM_DLL_ENV_SIZE+"] DLL_ENV_REV: " + Marshal.SizeOf(typeof(SHM_DLL_ENV_REV)) + " ENV: " + Marshal.SizeOf(typeof(SHM_DLL_ENV)));
 
                     SHM_PROCESS_ENV_REV aStruct;
                     int count = Marshal.SizeOf(typeof(SHM_PROCESS_ENV_REV));
@@ -329,7 +271,6 @@ namespace meintro {
                     aStruct = (SHM_PROCESS_ENV_REV)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(SHM_PROCESS_ENV_REV));
 
                     Console.Out.WriteLine("Test " + aStruct.name);
-                    Console.Out.WriteLine("Test " + SHM_THREAD_ENV_SIZE);
 
                     //Console.Out.WriteLine("Test " + Marshal.SizeOf(typeof(SHM_PROCESS_ENV)));
 
