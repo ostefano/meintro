@@ -115,6 +115,31 @@ namespace meintro {
             return snapshot;
         }
 
+        static uint[] GetAllThreadIds(List<SHM_PROCESS_ENV[]> experiment, uint p_index) {
+            ISet<uint> result_set = new HashSet<uint>();
+            foreach (SHM_PROCESS_ENV[] spe in experiment) {
+                foreach (SHM_THREAD_ENV ste in spe[p_index].thread_envs) {
+                    if(ste.thread_id != 0) {
+                        result_set.Add(ste.thread_id);
+                    }
+                }
+            }
+            return result_set.ToArray<uint>();
+        }
+
+        static UInt64[] GetAllDllIds(List<SHM_PROCESS_ENV[]> experiment, uint p_index) {
+            ISet<UInt64> result_set = new HashSet<UInt64>();
+            foreach (SHM_PROCESS_ENV[] spe in experiment) {
+                foreach (SHM_THREAD_ENV ste in spe[p_index].thread_envs) {
+                    foreach (SHM_DLL_ENV sde in ste.dll_envs) {
+                        if (sde.dll_id != 0) {
+                            result_set.Add(sde.dll_id);
+                        }
+                    }
+                }
+            }
+            return result_set.ToArray<UInt64>();
+        }
 
         static void Main(string[] args) {
 
