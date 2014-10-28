@@ -115,7 +115,19 @@ namespace meintro {
             return snapshot;
         }
 
-        static uint[] GetAllThreadIds(List<SHM_PROCESS_ENV[]> experiment, uint p_index) {
+        static UInt32[] GetAllProcessIds(List<SHM_PROCESS_ENV[]> experiment) {
+            ISet<UInt32> result_set = new HashSet<UInt32>();
+            foreach (SHM_PROCESS_ENV[] spe in experiment) {
+                foreach (SHM_PROCESS_ENV s in spe) {
+                    if (s.process_id != 0) {
+                        result_set.Add(s.process_id);
+                    }
+                }
+            }
+            return result_set.ToArray<UInt32>();
+        }
+
+        static UInt32[] GetAllThreadIds(List<SHM_PROCESS_ENV[]> experiment, uint p_index) {
             ISet<uint> result_set = new HashSet<uint>();
             foreach (SHM_PROCESS_ENV[] spe in experiment) {
                 foreach (SHM_THREAD_ENV ste in spe[p_index].thread_envs) {
@@ -124,7 +136,7 @@ namespace meintro {
                     }
                 }
             }
-            return result_set.ToArray<uint>();
+            return result_set.ToArray<UInt32>();
         }
 
         static UInt64[] GetAllDllIds(List<SHM_PROCESS_ENV[]> experiment, uint p_index) {
@@ -158,6 +170,16 @@ namespace meintro {
                     SHM_PROCESS_ENV[] snapshot = GetSnapshot(f);
                     experiment.Add(snapshot);
                 }
+
+                // We need to normalize now. Meaning that we need the build
+                // actual measurement based on the processes.
+
+                UInt32[] actual_processes = GetAllProcessIds(experiment);
+                
+                foreach (UInt32 process_id in actual_processes) {
+
+                }
+
                 
             } catch (Exception e) {
                 Console.Out.WriteLine("[*] Exception " + e.Message);
